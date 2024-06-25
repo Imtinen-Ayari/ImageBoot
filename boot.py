@@ -140,7 +140,7 @@ def compare_images(image_path1, image_path2, output_path1, output_path2):
     cv2.imwrite(output_path1, car1_with_contours)
     cv2.imwrite(output_path2, car2_with_contours)
     
-url = "http://localhost:1111/Comparator"
+url = "http://52.47.71.44:1111/Comparator"
 response = requests.post(url, data={'User-Agent': 'Mozilla/5.0'})
 
 # Récupération du contenu de la page
