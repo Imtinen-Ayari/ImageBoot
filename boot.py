@@ -2,7 +2,6 @@ import sys
 import os
 import cv2
 import numpy as np
-import requests
 from matplotlib import pyplot as plt
 
 def load_yolo_model():
@@ -140,11 +139,11 @@ def compare_images(image_path1, image_path2, output_path1, output_path2):
     cv2.imwrite(output_path1, car1_with_contours)
     cv2.imwrite(output_path2, car2_with_contours)
     
-url = "http://52.47.71.44:1111/Comparator"
-response = requests.post(url, data={'User-Agent': 'Mozilla/5.0'})
+# url = "http://52.47.71.44:1111/Comparator"
+# response = requests.post(url, data={'User-Agent': 'Mozilla/5.0'})
 
 # Récupération du contenu de la page
-html_page = response.text
+# html_page = response.text
 
 if __name__ == "__main__":
     image_path1 = sys.argv[1]
