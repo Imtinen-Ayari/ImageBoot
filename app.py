@@ -4,12 +4,22 @@ import numpy as np
 import io
 import base64
 from PIL import Image
+import os
 
 app = Flask(__name__)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 def load_yolo_model():
-    net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
-    with open("coco.names", "r") as f:
+    weights_path = os.path.join(BASE_DIR, "yolov3.weights")
+    config_path = os.path.join(BASE_DIR, "yolov3.cfg")
+    names_path = os.path.join(BASE_DIR, "coco.names")
+
+    if not os.path.exists(weights_path) or not os.path.exists(config_path) or not os.path.exists(names_path):
+        raise FileNotFoundError("Les fichiers YOLO nécessaires ne sont pas trouvés.")
+
+    net = cv2.dnn.readNet(weights_path, config_path)
+    with open(names_path, "r") as f:
         classes = [line.strip() for line in f.readlines()]
     layer_names = net.getLayerNames()
     output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
@@ -46,24 +56,18 @@ def extract_car(image, boxes, class_ids, classes):
     for i in range(len(boxes)):
         if classes[class_ids[i]] == 'car':
             x, y, w, h = boxes[i]
-            
-            # Assurez-vous que les coordonnées de recadrage sont dans les limites de l'image
             x = max(0, x)
             y = max(0, y)
             w = min(w, width - x)
             h = min(h, height - y)
-
             car = image[y:y+h, x:x+w]
             return car
     return None
 
 def align_cars(car1, car2):
-    if car1 is None or car2 is None:
+    if car1 is None or car2 is None or car1.size == 0 or car2.size == 0:
         raise ValueError("L'une des voitures fournies est vide.")
     
-    if car1.size == 0 or car2.size == 0:
-        raise ValueError("L'une des images de voiture fournies est vide après l'extraction.")
-
     gray1 = cv2.cvtColor(car1, cv2.COLOR_BGR2GRAY)
     gray2 = cv2.cvtColor(car2, cv2.COLOR_BGR2GRAY)
     orb = cv2.ORB_create()
